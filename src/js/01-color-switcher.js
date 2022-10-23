@@ -1,34 +1,42 @@
 // const getEl = selector => document.querySelector(selector);
 
-// getEl('[data-start]').addEventListener('click', startRandomBackgroundSwitch);
+// getEl('[data-start]').addEventListener('click', () => console.log('start'));
 // getEl('[data-stop]').addEventListener('click', () => console.log('stop'));
 
 const refs = {
   start: document.querySelector('[data-start]'),
   stop: document.querySelector('[data-stop]'),
-  body: document.querySelector('body'),
 };
 
 refs.start.addEventListener('click', startRandomBackgroundSwitch);
 refs.stop.addEventListener('click', stopRandomBackgroundSwitch);
 
 let intervalId = null;
+refs.stop.setAttribute('disabled', '');
+
+const setDisabled = ref => ref.setAttribute('disabled', '');
+const removeDisabled = ref => ref.removeAttribute('disabled');
 
 function startRandomBackgroundSwitch({ currentTarget }) {
-  const changeBackgroundColor = () =>
-    (document.body.style.backgroundColor = getRandomHexColor());
-  changeBackgroundColor();
+  changeBackgroundColor(getRandomHexColor());
 
   intervalId = setInterval(() => {
-    changeBackgroundColor();
+    changeBackgroundColor(getRandomHexColor());
   }, 1000);
 
-  currentTarget.setAttribute('disabled', '');
+  setDisabled(currentTarget);
+  removeDisabled(refs.stop);
 }
 
-function stopRandomBackgroundSwitch(e) {
+function stopRandomBackgroundSwitch({ currentTarget }) {
   clearInterval(intervalId);
-  refs.start.removeAttribute('disabled');
+
+  removeDisabled(refs.start);
+  setDisabled(currentTarget);
+}
+
+function changeBackgroundColor(color) {
+  return (document.body.style.backgroundColor = color);
 }
 
 function getRandomHexColor() {
