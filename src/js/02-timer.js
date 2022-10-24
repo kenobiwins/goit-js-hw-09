@@ -29,32 +29,22 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     selecktedTime = selectedDates[0];
-    if (selecktedTime - new Date() > 0) {
-      refs.startBtn.removeAttribute('disabled');
-    } else {
-      clearInterval(intervalId);
-      refs.startBtn.setAttribute('disabled', '');
-      return Notiflix.Notify.failure('Please choose a date in the future');
+    if (intervalId) {
+      clearTimer(intervalId);
     }
+    chechDate(selecktedTime);
   },
-  onOpen() {
-    clearInterval(intervalId);
-  },
+  onOpen() {},
 };
 flatpickr(refs.datetime, options);
 
 function setTimeoutDate() {
-  const { days, hours, minutes, seconds } = convertMs(
-    selecktedTime - new Date()
-  );
-
-  getEl('[data-days]').textContent = days;
-  getEl('[data-hours]').textContent = hours;
-  getEl('[data-minutes]').textContent = minutes;
-  getEl('[data-seconds]').textContent = seconds;
-  intervalId = setInterval(() => {
-    setTimeoutDate();
-  }, 1000);
+  Notiflix.Notify.success('Timer is started!!');
+  if (intervalId) {
+    clearTimer(intervalId);
+  }
+  renderingTime();
+  intervalId = setInterval(renderingTime, 1000);
 }
 
 function convertMs(ms) {
@@ -80,4 +70,39 @@ function convertMs(ms) {
 
 function addLeadingZero(value) {
   return String(value).padStart(2, '0');
+}
+
+function clearTimer(id) {
+  clearInterval(id);
+  intervalId = null;
+  Notiflix.Notify.warning(`Timer is cleared`);
+}
+
+function renderingTime() {
+  const delta = selecktedTime - new Date();
+  const { days, hours, minutes, seconds } = convertMs(delta);
+  if (seconds < 0) {
+    return;
+  }
+
+  getEl('[data-days]').textContent = days;
+  getEl('[data-hours]').textContent = hours;
+  getEl('[data-minutes]').textContent = minutes;
+  getEl('[data-seconds]').textContent = seconds;
+}
+
+function chechDate(selecktedTime) {
+  if (!intervalId) {
+    Notiflix.Notify.info('Date changed!!');
+    getEl('[data-days]').textContent = 0;
+    getEl('[data-hours]').textContent = 0;
+    getEl('[data-minutes]').textContent = 0;
+    getEl('[data-seconds]').textContent = 0;
+  }
+  if (selecktedTime - new Date() > 0) {
+    refs.startBtn.removeAttribute('disabled');
+  } else {
+    refs.startBtn.setAttribute('disabled', '');
+    return Notiflix.Notify.failure('Please choose a date in the future');
+  }
 }
