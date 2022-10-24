@@ -1,7 +1,7 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-import Notiflix from 'notiflix';
+import Notiflix, { Loading } from 'notiflix';
 import 'notiflix/dist/notiflix-3.2.5.min.css';
 
 const refs = {
@@ -16,6 +16,16 @@ let intervalId = null;
 
 refs.startBtn.setAttribute('disabled', '');
 refs.startBtn.addEventListener('click', setTimeoutDate);
+window.addEventListener('load', loader);
+
+function loader() {
+  Notiflix.Loading.dots('Loading...', {
+    clickToClose: true,
+    cssAnimationDuration: 500,
+    timeout: 300,
+  });
+  Loading.remove(700);
+}
 
 Notiflix.Notify.init({
   clickToClose: true,
@@ -93,13 +103,13 @@ function renderingTime() {
 
 function chechDate(selecktedTime) {
   if (!intervalId) {
-    Notiflix.Notify.info('Date changed!!');
     getEl('[data-days]').textContent = 0;
     getEl('[data-hours]').textContent = 0;
     getEl('[data-minutes]').textContent = 0;
     getEl('[data-seconds]').textContent = 0;
   }
   if (selecktedTime - new Date() > 0) {
+    Notiflix.Notify.info('Date changed!!');
     refs.startBtn.removeAttribute('disabled');
   } else {
     refs.startBtn.setAttribute('disabled', '');
